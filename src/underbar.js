@@ -7,7 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
-	 return val;
+    return val;
   };
 
   /**
@@ -32,48 +32,49 @@
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
-  // return n === undefined ? array[0] : array.slice(0, n);
-  // same as
-    if(n === undefined){
-      return (array[0]);
-    }else{
-      return (array.slice(0, n));
-    }
+    return n === undefined ? array[0] : array.slice(0, n);
   };
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
-  _.last = function(array,n){
-    return n === undefined ? array[array.length - 1] : array.slice(Math.max(0, array.length - n));
+  _.last = function(array, n) {
+    if(n === undefined){
+      return (array[array.length - 1]);
+    }else{
+      return (array.slice([Math.max(0, array.length - n)])); // slice needs 0 to be specified as bottom limit in case negative numbers are passed
+    }
   };
-  // same as
-  // _.last = function(array, n) {
-  //   if(n === undefined){
-	//    return (array[array.length-1]);
-  //   }else{
-	//    return (array.slice(Math.max(0, array.length-n)));
-  //   }
-  // };
+
+  // I suppose the above could also be written as:
+  // _.last = function(array, n){
+  //    return n === undefined ? array[array.length - 1] : array.slice([Math.max(0, array.length - n)]);
+  //  };
+
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
-  //
+
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
-	 var i,
-		length = collection.length;
-	 for(i = 0; i < length; i++){
-	     collection[i].iterator();
-	 }
+	   if(Array.isArray(collection)){
+		  for(var i = 0, length = collection.length; i < length; i++){
+			 iterator(collection[i], i, collection); // Not returned, just passed values
+		  }
+	   }else{
+		  for (var k in collection){
+			 iterator(collection[k], k, collection); // Objects accept values with keys vis-a-vis arrays and index values
+       }
+     }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
+  // TIP: Here's an example of a function that needs to iterate, which we've
+  // implemented for you. Instead of using a standard `for` loop, though,
+  // it uses the iteration helper `each`, which you will need to write.
+
   _.indexOf = function(array, target){
-    // TIP: Here's an example of a function that needs to iterate, which we've
-    // implemented for you. Instead of using a standard `for` loop, though,
-    // it uses the iteration helper `each`, which you will need to write.
     var result = -1;
 
     _.each(array, function(item, index) {
@@ -87,16 +88,33 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var arrayOfTestedThings = [];
+    _.each(collection, function(dakine){
+      if(test(dakine)){
+        arrayOfTestedThings.push(dakine);
+      }
+    });
+    return arrayOfTestedThings;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
-  };
+      return _.filter(collection, function(dakineItem){ // Return results of filter
+        return !test(dakineItem); // Return
+      });
+   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var arrayOfUniqueItems = [];
+    return _.each(array, function(itemThing){
+      if(_.indexOf(arrayOfUniqueItems, itemThing) === -1){
+        arrayOfUniqueItems.push(itemThing);
+      }
+    });
+    return arrayOfUniqueItems;
   };
 
 

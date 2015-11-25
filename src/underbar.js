@@ -109,7 +109,7 @@
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
     var arrayOfUniqueItems = [];
-    return _.each(array, function(itemThing){
+    _.each(array, function(itemThing){
       if(_.indexOf(arrayOfUniqueItems, itemThing) === -1){
         arrayOfUniqueItems.push(itemThing);
       }
@@ -123,6 +123,11 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var arrayOfIteratedItems = [];
+    _.each(collection, function(itemsToIterate){
+      arrayOfIteratedItems.push(iterator(itemsToIterate));
+    });
+    return arrayOfIteratedItems;
   };
 
   /*
@@ -163,7 +168,20 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
-  _.reduce = function(collection, iterator, accumulator) {
+
+  _.reduce = function(collection, iterator, accumulator){
+    // Check if accumulator is undefined
+    var checkAccumulatorUndefined = arguments.length < 3;
+    _.each(collection, function(itemThingDakine, index, collection){
+        // Set accumulator to first element when none passed
+        if(checkAccumulatorUndefined){
+          checkAccumulatorUndefined = false;
+          accumulator = itemThingDakine;
+        }else {
+          accumulator = iterator(accumulator, itemThingDakine, index, collection);
+        }
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -178,10 +196,12 @@
     }, false);
   };
 
-
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    _.reduce(collection, function(dakineTruthy){
+
+    });
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is

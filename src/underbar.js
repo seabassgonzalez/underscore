@@ -7,7 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
-    return val;
+      return val;
   };
 
   /**
@@ -45,36 +45,31 @@
     }
   };
 
-  // I suppose the above could also be written as:
-  // _.last = function(array, n){
-  //    return n === undefined ? array[array.length - 1] : array.slice([Math.max(0, array.length - n)]);
-  //  };
-
-
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
-
-  // Note: _.each does not have a return value, but rather simply runs the
+  //
+  // Note: _.each does not have a return value, but rather simply runs the    <------------
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
-	   if(Array.isArray(collection)){
-		  for(var i = 0, length = collection.length; i < length; i++){
-			 iterator(collection[i], i, collection); // Not returned, just passed values
-		  }
-	   }else{
-		  for (var k in collection){
-			 iterator(collection[k], k, collection); // Objects accept values with keys vis-a-vis arrays and index values
-       }
-     }
+    if(Array.isArray(collection)){
+      for(var i = 0, length = collection.length; i < length; i++){
+        // Not returned, iterator just passed values
+        iterator(collection[i], i, collection);
+      }
+    }else{
+        for(var k in collection){
+        // Objects accept values with keys, not indices
+        iterator(collection[k], k, collection);
+        }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
-  // TIP: Here's an example of a function that needs to iterate, which we've
-  // implemented for you. Instead of using a standard `for` loop, though,
-  // it uses the iteration helper `each`, which you will need to write.
-
   _.indexOf = function(array, target){
+    // TIP: Here's an example of a function that needs to iterate, which we've
+    // implemented for you. Instead of using a standard `for` loop, though,
+    // it uses the iteration helper `each`, which you will need to write.
     var result = -1;
 
     _.each(array, function(item, index) {
@@ -88,11 +83,14 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+  // inst an array of truthy passing elements
+  // using _.each to iterate through collection, if element passes some test then push to above
+  // return array of truthy passing elements
     var arrayOfTestedThings = [];
-    _.each(collection, function(dakine){
-      if(test(dakine)){
-        arrayOfTestedThings.push(dakine);
-      }
+    _.each(collection,function(dakineElement){
+        if(test(dakineElement)){
+          arrayOfTestedThings.push(dakineElement);
+        }
     });
     return arrayOfTestedThings;
   };
@@ -100,21 +98,20 @@
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
-    // copying code in and modifying it
-      return _.filter(collection, function(dakineItem){ // Return results of filter
-        return !test(dakineItem); // Return
-      });
-   };
+    return _.filter(collection, function(dakineElement){
+      return !test(dakineElement);
+    });
+  };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
-    var arrayOfUniqueItems = [];
-    _.each(array, function(itemThing){
-      if(_.indexOf(arrayOfUniqueItems, itemThing) === -1){
-        arrayOfUniqueItems.push(itemThing);
+    var arrayOfUniqueElements = [];
+    _.each(array, function(dakineElement){
+      if(_.indexOf(arrayOfUniqueElements, dakineElement) === -1){
+        arrayOfUniqueElements.push(dakineElement);
       }
     });
-    return arrayOfUniqueItems;
+    return arrayOfUniqueElements;
   };
 
 
@@ -123,11 +120,11 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
-    var arrayOfIteratedItems = [];
-    _.each(collection, function(itemsToIterate){
-      arrayOfIteratedItems.push(iterator(itemsToIterate));
-    });
-    return arrayOfIteratedItems;
+      var arrayOfIteratedElements = [];
+      _.each(collection, function(dakineElement){
+        arrayOfIteratedElements.push(iterator(dakineElement));
+      });
+      return arrayOfIteratedElements;
   };
 
   /*
@@ -168,18 +165,15 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
-
-  _.reduce = function(collection, iterator, accumulator){
-    // Check if accumulator is undefined
-    var checkAccumulatorUndefined = arguments.length < 3;
-    _.each(collection, function(itemThingDakine, index, collection){
-        // Set accumulator to first element when none passed
-        if(checkAccumulatorUndefined){
-          checkAccumulatorUndefined = false;
-          accumulator = itemThingDakine;
-        }else {
-          accumulator = iterator(accumulator, itemThingDakine, index, collection);
-        }
+  _.reduce = function(collection, iterator, accumulator) {
+    var checkIfAccumulatorUndefined = arguments.length < 3;
+    _.each(collection, function(firstDakineElement){
+      if(checkIfAccumulatorUndefined){
+        accumulator = firstDakineElement;
+        checkIfAccumulatorUndefined = false;
+      }else{
+        accumulator = iterator(accumulator, firstDakineElement);
+      }
     });
     return accumulator;
   };
@@ -196,12 +190,10 @@
     }, false);
   };
 
+
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    _.reduce(collection, function(dakineTruthy){
-
-    });
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is

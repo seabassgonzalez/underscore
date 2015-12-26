@@ -7,6 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+      return val;
   };
 
   /**
@@ -37,14 +38,30 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if(n === undefined){
+      return (array[array.length - 1]);
+    }else{
+      return (array.slice([Math.max(0, array.length - n)])); // slice needs 0 to be specified as bottom limit in case negative numbers are passed
+    }
   };
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
   //
-  // Note: _.each does not have a return value, but rather simply runs the
+  // Note: _.each does not have a return value, but rather simply runs the    <------------
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    if(Array.isArray(collection)){
+      for(var i = 0, length = collection.length; i < length; i++){
+        // Not returned, iterator just passed values
+        iterator(collection[i], i, collection);
+      }
+    }else{
+        for(var k in collection){
+        // Objects accept values with keys, not indices
+        iterator(collection[k], k, collection);
+        }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,16 +83,37 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+  // inst an array of truthy passing elements
+  // using _.each to iterate through collection, if element passes some test then push to above
+  // return array of truthy passing elements
+    var arrayOfTestedThings = [];
+    _.each(collection,function(dakineElement){
+        if(test(dakineElement)){
+          arrayOfTestedThings.push(dakineElement);
+        }
+    });
+    return arrayOfTestedThings;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    return _.filter(collection, function(dakineElement){
+      // Can call the inverse of a function when made into a callback w/in another function
+      return !test(dakineElement);
+    });
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var arrayOfUniqueElements = [];
+    _.each(array, function(dakineElement){
+      if(_.indexOf(arrayOfUniqueElements, dakineElement) === -1){
+        arrayOfUniqueElements.push(dakineElement);
+      }
+    });
+    return arrayOfUniqueElements;
   };
 
 
@@ -84,6 +122,11 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+      var arrayOfIteratedElements = [];
+      _.each(collection, function(dakineElement){
+        arrayOfIteratedElements.push(iterator(dakineElement));
+      });
+      return arrayOfIteratedElements;
   };
 
   /*
@@ -107,24 +150,34 @@
   // Reduces an array or object to a single value by repetitively calling
   // iterator(accumulator, item) for each item. accumulator should be
   // the return value of the previous iterator call.
-  //  
+  //
   // You can pass in a starting value for the accumulator as the third argument
   // to reduce. If no starting value is passed, the first element is used as
   // the accumulator, and is never passed to the iterator. In other words, in
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
-  //  
+  //
   // Example:
   //   var numbers = [1,2,3];
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  //  
+  //
   //   var identity = _.reduce([5], function(total, number){
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var checkIfAccumulatorUndefined = arguments.length < 3;
+    _.each(collection, function(firstDakineElement){
+      if(checkIfAccumulatorUndefined){
+        accumulator = firstDakineElement;
+        checkIfAccumulatorUndefined = false;
+      }else{
+        accumulator = iterator(accumulator, firstDakineElement);
+      }
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -132,7 +185,7 @@
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
     return _.reduce(collection, function(wasFound, item) {
-      if (wasFound) {
+      if (wasFound){
         return true;
       }
       return item === target;
@@ -143,12 +196,29 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    if(iterator === undefined){
+      // if no call back iterating function is called, set with identity
+      iterator = _.identity;
+    }
+    return _.reduce(collection, function(precedingValue, currentDakineElement){
+      if(precedingValue && iterator(currentDakineElement)){
+        return true;
+      }else{
+        return false;
+      }
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    if(iterator === undefined){
+      iterator = _.identity;
+    }
+    return !(_.every(collection, function(item){
+      return !iterator(item);
+    }));
   };
 
 
@@ -171,11 +241,28 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    // Go through the array of arguments
+    _.each(arguments, function(argumentDakineElement){
+      // Go through each object in the array of arguments
+      _.each(argumentDakineElement, function(argumentDakineElement, key){
+        obj[key] = argumentDakineElement;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    // Check to see if the key already exists, then extend
+    _.each(arguments, function(argumentDakineElement){
+      _.each(argumentDakineElement, function(argumentDakineElement, key){
+        if(!obj.hasOwnProperty(key)){
+          obj[key] = argumentDakineElement;
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -219,6 +306,14 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var storedResults = {};
+    return function(){
+      var givenArguments = Array.prototype.slice.call(arguments);
+      if (storedResults[givenArguments] === undefined){
+        storedResults[givenArguments] = func.apply(this, givenArguments);
+      }
+      return storedResults[givenArguments];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -228,6 +323,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var givenArguments = Array.prototype.slice.call(arguments, 2);
+    return setTimeout(function(){
+      func.apply(this, givenArguments);
+    }, wait);
   };
 
 
@@ -242,6 +341,14 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arrayCopy = array.slice();
+    var shuffledArray = [];
+    for(var i =0; i < array.length; i++){
+      var randomIndex = Math.floor(Math.random() * arrayCopy.length);
+      shuffledArray.push(arrayCopy[randomIndex]);
+      arrayCopy.splice(randomIndex, 1);
+    }
+    return shuffledArray;
   };
 
 

@@ -37,29 +37,47 @@
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
+
+  // Takes an array and a number n (number of items from last number to specify)
+    // Checks if n was given, if it's undefined or not
+        // It no n was given, it assumes you want just last and returns last array[index]
+    // else if n is given
+        // return array.slice of array.length - n, cover cases where n makes the slice negative vis-a-vis array.length
+
   _.last = function(array, n) {
-    if(n === undefined){
-      return (array[array.length - 1]);
-    }else{
-      return (array.slice([Math.max(0, array.length - n)])); // slice needs 0 to be specified as bottom limit in case negative numbers are passed
-    }
+      if(n === undefined){
+          return (array[array.length - 1]);
+      }else{
+          return (array.slice([Math.max(0, array.length - n)])); // slice needs 0 to be specified as bottom limit in case negative numbers are passed
+      }
+  };
+
+  // Could also be written as:
+
+  _.last = function(array, n) {
+      return n === undefined ? array[array.length - 1] : array.slice([Math.max(0, array.length - n)]);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
   //
-  // Note: _.each does not have a return value, but rather simply runs the    <------------
+  // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
+
+  // Takes a collection and an iterator function
+    // Checks if collection is an array
+        // Passes array item info to iterator
+    // Else if collection is an object
+        // Passes object info to iterator
+
   _.each = function(collection, iterator) {
     if(Array.isArray(collection)){
-      for(var i = 0, length = collection.length; i < length; i++){
-        // Not returned, iterator just passed values
-        iterator(collection[i], i, collection);
-      }
+        for(var i = 0, length = collection.length; i <length; i++){
+            iterator(collection[i], i, collection);
+        }
     }else{
         for(var k in collection){
-        // Objects accept values with keys, not indices
-        iterator(collection[k], k, collection);
+            iterator(collection[k], k, collection);
         }
     }
   };
@@ -82,52 +100,76 @@
   };
 
   // Return all elements of an array that pass a truth test.
+
+  // Takes a collection and a testing function
+    // Create an array of elements passed as true to later return
+    // Use _.each taking the collection and a function that will use each item in the collection
+        // If the collection item passes the test
+            // Then push the item to the array of truthy elements
+    // Return the array of truth elements
+
   _.filter = function(collection, test) {
-  // inst an array of truthy passing elements
-  // using _.each to iterate through collection, if element passes some test then push to above
-  // return array of truthy passing elements
-    var arrayOfTestedThings = [];
-    _.each(collection,function(dakineElement){
-        if(test(dakineElement)){
-          arrayOfTestedThings.push(dakineElement);
-        }
-    });
-    return arrayOfTestedThings;
+      var arrayOfTestedThings = [];
+      _.each(collection, function(givenCollectionItem){
+          if(test(givenCollectionItem)){
+            arrayOfTestedThings.push(givenCollectionItem);
+          }
+      });
+      return arrayOfTestedThings;
   };
 
   // Return all elements of an array that don't pass a truth test.
-  _.reject = function(collection, test) {
+
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
-    return _.filter(collection, function(dakineElement){
-      // Can call the inverse of a function when made into a callback w/in another function
-      return !test(dakineElement);
-    });
+    // Note: We can call the inverse of a function when made into a "callback" w/in another function
+
+    // Takes a collection and a testing function
+        // Return _.filter taking the collection and a function that uses a given collection item
+            // Returns the inverse or opposite ! of the truthy test(givenCollectionItem)
+
+  _.reject = function(collection, test) {
+      return _.filter(collection, function(givenCollectionItem){
+          return !test(givenCollectionItem);
+      });
   };
 
   // Produce a duplicate-free version of the array.
-  _.uniq = function(array) {
-    var arrayOfUniqueElements = [];
-    _.each(array, function(dakineElement){
-      if(_.indexOf(arrayOfUniqueElements, dakineElement) === -1){
-        arrayOfUniqueElements.push(dakineElement);
-      }
-    });
-    return arrayOfUniqueElements;
-  };
 
+  // Takes an array
+    // Create an array of Elements proven to be Unique
+    // Use _.each to take the array and a function that uses the given element from the array
+        // If the given element does NOT exists in the array of unique elements already
+            // Push the element to the array of unique elements
+  // Return the array of unique elements
+
+  _.uniq = function(array) {
+      var arrayOfUniqueElements = [];
+      _.each(array, function(givenArrayElement){
+          if(_.indexOf(arrayOfUniqueElements, givenArrayElement) === -1){
+              arrayOfUniqueElements.push(givenArrayElement);
+          }
+      });
+      return arrayOfUniqueElements;
+  };
 
   // Return the results of applying an iterator to each element.
   _.map = function(collection, iterator) {
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
-      var arrayOfIteratedElements = [];
-      _.each(collection, function(dakineElement){
-        arrayOfIteratedElements.push(iterator(dakineElement));
-      });
-      return arrayOfIteratedElements;
-  };
+
+        // Create an array to store results of collection elements passed through iterator
+        // Use _.each to take the collection and a function that uses those elements
+            // Push the results of each element passed to the iterator to the array to results array
+        // Return the array of results
+
+        var arrayOfIteratedElementResults = [];
+        _.each(collection, function(collectionElement){
+            arrayOfIteratedElementResults.push(iterator(collectionElement));
+        });
+        return arrayOfIteratedElementResults;
+    };
 
   /*
    * TIP: map is really handy when you want to transform an array of
@@ -167,14 +209,24 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
+
+  // Takes a collection, an iterator that uses the elements of the collection, and an accumulator value
+    // First check to see if the accumulator has been defined/passed in - create accumulator undefined checker value
+    // Use _.each taking the collection and a function that will do something with its elements
+        // If the accumulator isn't defined
+            // Then set the accumulator to equal the first element in the collection
+        // Else if the accumulator is defined
+            // Then increments the accumulator setting it equal to the result of the iterator function taking the current accumulator value and the next element value to be acted on
+    // Return the accumulator
+
   _.reduce = function(collection, iterator, accumulator) {
-    var checkIfAccumulatorUndefined = arguments.length < 3;
-    _.each(collection, function(firstDakineElement){
+      var checkIfAccumulatorUndefined = arguments.length < 3;
+    _.each(collection, function(nextGivenElement){
       if(checkIfAccumulatorUndefined){
-        accumulator = firstDakineElement;
+        accumulator = nextGivenElement;
         checkIfAccumulatorUndefined = false;
       }else{
-        accumulator = iterator(accumulator, firstDakineElement);
+        accumulator = iterator(accumulator, nextGivenElement);
       }
     });
     return accumulator;
@@ -185,7 +237,7 @@
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
     return _.reduce(collection, function(wasFound, item) {
-      if (wasFound){
+      if (wasFound) {
         return true;
       }
       return item === target;
@@ -194,30 +246,46 @@
 
 
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
+
+  _.every = function(collection, truthyIteratorTest) {
     // TIP: Try re-using reduce() here.
-    if(iterator === undefined){
-      // if no call back iterating function is called, set with identity
-      iterator = _.identity;
+
+    // Check that iterator defined
+        // If not, set with _.identity
+    // Return _.reduce using collection, a Testing function tracking truthiness, current item, & base truthy case
+        // If truthy so far && iterator(currentItem) also truthy
+            // Return true
+        // Else
+            // Return false
+
+    if(truthyIteratorTest === undefined){
+        truthyIteratorTest = _.identity;
     }
-    return _.reduce(collection, function(precedingValue, currentDakineElement){
-      if(precedingValue && iterator(currentDakineElement)){
-        return true;
-      }else{
-        return false;
-      }
+    return _.reduce(collection, function(truthyThusFar, currentItem){
+        if(truthyThusFar && truthyIteratorTest(currentItem)){
+            return true;
+        }else{
+            return false;
+        }
     }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
-  _.some = function(collection, iterator) {
+  _.some = function(collection, truthyTestingIterator) {
     // TIP: There's a very clever way to re-use every() here.
-    if(iterator === undefined){
-      iterator = _.identity;
+
+    // Check that iterator defined
+        // If not, set with _.identity
+    // Return NOT every using collection and test
+        // that Returns NOT testingIteratorFunction(item)
+    // -- Note that these two BANG! undo themselves and return true if "Not Not" all true; i.e. "some" true --
+
+    if(truthyTestingIterator === undefined){
+        truthyTestingIterator = _.identity;
     }
-    return !(_.every(collection, function(item){
-      return !iterator(item);
+    return !(_.every(collection, function(collectionItem){
+        return !(truthyTestingIterator(collectionItem));
     }));
   };
 
@@ -240,13 +308,18 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
+
+  // Takes an object
+    // Use _.each to iterate through the array of arguments
+        // Use _.each to iterate through each argument object in the array
+            // Pass each element as a property w/key to the object
+    // Return newly extended object
+
   _.extend = function(obj) {
-    // Go through the array of arguments
-    _.each(arguments, function(argumentDakineElement){
-      // Go through each object in the array of arguments
-      _.each(argumentDakineElement, function(argumentDakineElement, key){
-        obj[key] = argumentDakineElement;
-      });
+    _.each(arguments, function(argumentElement){
+        _.each(argumentElement, function(argumentElement, key){
+            obj[key] = argumentElement;
+        });
     });
     return obj;
   };
@@ -254,15 +327,19 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-    // Check to see if the key already exists, then extend
-    _.each(arguments, function(argumentDakineElement){
-      _.each(argumentDakineElement, function(argumentDakineElement, key){
-        if(!obj.hasOwnProperty(key)){
-          obj[key] = argumentDakineElement;
-        }
+      // Use _.each to iterate through the array of arguments
+        // Use _.each to iterate through each argument object in the array
+            //  Check to see if the obj[key] already exists so as to not override
+                // If not, then Pass each element as a property w/key to the object
+    // Return newly extended object
+      _.each(arguments, function(argumentElement){
+          _.each(argumentElement, function(argumentElement, key){
+              if(!obj.hasOwnProperty(key)){
+                 obj[key] = argumentElement;
+                 }
+          });
       });
-    });
-    return obj;
+      return obj;
   };
 
 
@@ -288,7 +365,7 @@
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -306,6 +383,12 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    // Create an object to store results
+    // Encapsulate operations within a Returned function -- memoize takes a function and produces a 'new' behaving one
+        // Create a variable to access given arguments using Array.prototype.slice.call
+        // If the given argument does not already exist in stored results object -- property w/ key and value --
+            // Pass stored results object that given argument as a using -- func.apply passes info between functions --
+        // Return stored results
     var storedResults = {};
     return function(){
       var givenArguments = Array.prototype.slice.call(arguments);
@@ -323,10 +406,13 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
-    var givenArguments = Array.prototype.slice.call(arguments, 2);
-    return setTimeout(function(){
-      func.apply(this, givenArguments);
-    }, wait);
+      // Create variable to hold Array.prototype.slice.call to access arguments (func, and time)
+      // Return set time out function using that variable in func.apply
+        // Passing in given arguments and wait time amt
+        var givenArguments = Array.prototype.slice.call(arguments, 2);
+        return setTimeout(function(){
+            func.apply(this, givenArguments);
+        }, wait);
   };
 
 
@@ -341,6 +427,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+  // Create a copy of the array
+    // Create an empty array to store shuffled elements
+    // Use for loop to loop through array copy elements
+        // Create value to randomize index locations access order
+        // Push arrayCopy[random index location] to shuffled array
+        // Remove arrayCopy[random index location] so it doesn't get duplicated before picking random index again
+    // Return shuffled array
     var arrayCopy = array.slice();
     var shuffledArray = [];
     for(var i =0; i < array.length; i++){
